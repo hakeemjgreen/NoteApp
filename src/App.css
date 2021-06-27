@@ -15,13 +15,25 @@
 
 .App-header {
   background-color: #282c34;
-  min-height: 100vh;
   display: flex;
+  min-height: 50px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
+}
+
+#sidebar{
+  background-color: #fff;
+}
+#note-section{
+  background-color: #f7fafb;
+  min-height: 100vh;
+}
+
+.card{
+  border-radius: 20px;
 }
 
 .App-link {
