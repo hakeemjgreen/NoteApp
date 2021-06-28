@@ -27,20 +27,44 @@ const databaseName = Firebase.database().ref('/notes');
 
 const App = () => {
   let [currentNote, setCurrentNote] = useState({})
+  let [noteState, setNoteState] = useState({})
   let [noteData, setNoteData] = useState([]);
 
   const writeUserData = (typedContent) => {
-    databaseName.push({
-      content:typedContent.content
-    })
-    .once('value', snap => {
+    // console.log("is ffd", typedContent)
 
-      setCurrentNote((oldState)=>({content:currentNote.content, id: snap.key}));
-      // alert(JSON.stringify(snap.key))//here is the problem
-      console.log(typedContent)
+    //If note exists update it
+    if(noteState.id == undefined){
+      databaseName.push({
+        content:typedContent
+      })
+      .once('value', snap => {
+  
+        // setCurrentNote((oldState)=>({content:currentNote.content, id: 3}));
+        setNoteState({id:snap.key,content: typedContent})  
+        // alert(JSON.stringify(snap.key))//here is the problem
+        console.log("noteeee",noteState.id)
+  
+        //Add key to the state
+      });
+    }
+    else{
+      const userNoteDB = Firebase.database().ref(`/notes/${noteState.id}`);
 
-      //Add key to the state
-    });
+      userNoteDB.set({
+        content:typedContent
+      })
+      .then('value', snap => {
+  
+        // setCurrentNote((oldState)=>({content:currentNote.content, id: 3}));
+        setNoteState({id:snap.key,content: typedContent})  
+        // alert(JSON.stringify(snap.key))//here is the problem
+        console.log("noteeee",noteState.id)
+  
+        //Add key to the state
+      });
+    }
+    
   }
 
   useEffect(()=>{
@@ -69,7 +93,7 @@ const App = () => {
   useEffect(()=>{
     console.log("EFFECT")
 
-    currentNote.content !== undefined ? writeUserData(currentNote) : console.log("Note Yet")
+    // currentNote.content !== undefined ? writeUserData(currentNote) : console.log("Note Yet")
 
 
     // setCurrentNote((oldState)=>({...oldState, id: 0}));
@@ -83,7 +107,7 @@ const App = () => {
         title: 'Test Title'
       })
     }).then((data)=>{
-      console.log(data.key)
+      // console.log(data.key)
     })
   }
 
@@ -96,10 +120,14 @@ const App = () => {
         {/* <SideBar NoteContent={currentNote} noteList={noteData} setCurrentNote={setCurrentNote} /> */}
         <div id="note-section" className="fl center w-80 pa2">
           <input className="w-100" placeholder="Please start typing to save Note..." onChange={event=>{
-            setCurrentNote({
-              id:0,
-              content: event.target.value
-            })            
+            let val = event.target.value
+            // setCurrentNote({
+            //   // id:0,
+            //   content: event.target.value
+            // })            
+            writeUserData(val)
+            
+            // console.log(val)
           }} />     
         </div>
       </div>
