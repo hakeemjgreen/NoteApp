@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 // Firebase App (the core Firebase SDK) is always required and must be listed first
 import Firebase from "firebase";
 
+const loadedNotes = {};
 
 // TODO: Replace the following with your app's Firebase project configuration
 // For Firebase JavaScript SDK v7.20.0 and later, `measurementId` is an optional field
@@ -19,7 +20,12 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-Firebase.initializeApp(firebaseConfig);
+if (!Firebase.apps.length) {
+  Firebase.initializeApp(firebaseConfig);
+}else {
+  Firebase.app(); // if already initialized, use that one
+}
+
 const databaseName = Firebase.database().ref('/notes');
 
 
@@ -28,22 +34,22 @@ const databaseName = Firebase.database().ref('/notes');
 const App = () => {
   let [currentNote, setCurrentNote] = useState({})
   let [noteState, setNoteState] = useState({})
-  let [noteData, setNoteData] = useState([]);
+  let [noteData, setNoteData] = useState({});
 
   const writeUserData = (typedContent) => {
-    // console.log("is ffd", typedContent)
+    console.log("is ffd", noteData)
 
     //If note exists update it
-    if(noteState.id == undefined){
+    if(noteState.id === undefined){
       databaseName.push({
         content:typedContent
       })
       .once('value', snap => {
   
         // setCurrentNote((oldState)=>({content:currentNote.content, id: 3}));
-        setNoteState({id:snap.key,content: typedContent})  
+        setNoteState({id:snap.key, content: typedContent})  
         // alert(JSON.stringify(snap.key))//here is the problem
-        console.log("noteeee",noteState.id)
+        console.log("noteeee",noteState)
   
         //Add key to the state
       });
@@ -59,7 +65,7 @@ const App = () => {
         // setCurrentNote((oldState)=>({content:currentNote.content, id: 3}));
         setNoteState({id:snap.key,content: typedContent})  
         // alert(JSON.stringify(snap.key))//here is the problem
-        console.log("noteeee",noteState.id)
+        console.log("noteeeedddd",noteState)
   
         //Add key to the state
       });
@@ -68,48 +74,55 @@ const App = () => {
   }
 
   useEffect(()=>{
-    const getNotes = async () =>{
-      const response = await fetch('https://noteapp-2cd8c-default-rtdb.firebaseio.com/notes.json');
-      const responseData = await response.json();
+
+      var noteRef = Firebase.database().ref('notes/');
+      let newList;
+      noteRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        for(const key in snapshot.val()){
+          let content = data[key].content
+          //If key is different add to note state
+          
+            console.log("Differentttt")
+            
+            let notess={
+              [key] : {content}
+            }
+            newList = {
+              ...notess, 
+              ...newList
+            }
+            console.log("NOTESSS", newList)
+          
+        }
+        setNoteData(newList)
+      });
+      let func = () =>{
+        console.log("LISTTT", newList)
+      }
       
+      // firebase.database().ref('users/' + userId).set({
+      //   username: name,
+      //   email: email,
+      //   profile_picture : imageUrl
+      // });
 
-      const loadedNotes = [];
+    func();
+    // console.log("GET NOTES")
 
-      // for(const key in responseData){
-      //   loadedNotes.push({
-      //     id:key,
-      //     content: responseData[key].content,
-      //     title: responseData[key].title
+  },[])
 
-      //   })
-      //   console.log("Key: ", responseData)
-      // }
-      // setNoteData(loadedNotes)
-    }
-
-    getNotes();
-
-  }, [])
-  useEffect(()=>{
-    console.log("EFFECT")
-
-    // currentNote.content !== undefined ? writeUserData(currentNote) : console.log("Note Yet")
-
-
-    // setCurrentNote((oldState)=>({...oldState, id: 0}));
-  }, [currentNote.content])
-
-  const saveNote = () =>{
-    fetch('https://noteapp-2cd8c-default-rtdb.firebaseio.com/notes.json', {
-      method: 'POST',
-      body: JSON.stringify({
-        content: currentNote,
-        title: 'Test Title'
-      })
-    }).then((data)=>{
-      // console.log(data.key)
-    })
-  }
+  // const saveNote = () =>{
+  //   fetch('https://noteapp-2cd8c-default-rtdb.firebaseio.com/notes.json', {
+  //     method: 'POST',
+  //     body: JSON.stringify({
+  //       content: currentNote,
+  //       title: 'Test Title'
+  //     })
+  //   }).then((data)=>{
+  //     // console.log(data.key)
+  //   })
+  // }
 
   return (
     <div className="App">
@@ -117,17 +130,16 @@ const App = () => {
         REDdd
       </header>
       <div className="fl w-100 center">
-        {/* <SideBar NoteContent={currentNote} noteList={noteData} setCurrentNote={setCurrentNote} /> */}
+        <SideBar NoteContent={currentNote} noteList={noteData} setCurrentNote={setCurrentNote} />
         <div id="note-section" className="fl center w-80 pa2">
           <input className="w-100" placeholder="Please start typing to save Note..." onChange={event=>{
             let val = event.target.value
-            // setCurrentNote({
-            //   // id:0,
-            //   content: event.target.value
-            // })            
+            setCurrentNote({
+              // id:0,
+              content: val
+            })            
             writeUserData(val)
-            
-            // console.log(val)
+            // console.log('jwnkdms', noteData)
           }} />     
         </div>
       </div>
