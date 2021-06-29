@@ -1,3 +1,4 @@
+//# Add state update when new note is created
 import './App.css';
 import SideBar from './components/sidebar';
 import { useState, useEffect } from 'react';

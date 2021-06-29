@@ -1,4 +1,5 @@
 
+import './note.css'
 const Note = (props) =>{
 
     // const items = props.noteList.map((item)=>{
@@ -17,14 +18,19 @@ const Note = (props) =>{
         return(
             
                 <li key={keyName}>
-                    <div >{props.noteList[keyName].content}</div>
+         {console.log("fdsd", props)}
+                    <a href="#">{props.noteList[keyName].content}</a>
                 </li>
         
         )
     })
     
 
-    return (<ul>{items}</ul>)
+    return (<ul>
+        {props.NoteContent.content ? <li className="scale-in-center "><p>{props.NoteContent.content}</p></li>
+         : <li><p>Start typing to create a new note...</p></li>}
+        {items}
+    </ul>)
         
 }
 
