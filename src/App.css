@@ -25,10 +25,11 @@
 }
 
 #sidebar{
-  background-color: #fff;
+  background-color: #f7fafb;
 }
 #note-section{
-  background-color: #f7fafb;
+  background-color: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 7%), 0 2px 4px rgb(0 0 0 / 7%), 0 4px 8px rgb(0 0 0 / 7%), 0 8px 16px rgb(0 0 0 / 7%), 0 16px 32px rgb(0 0 0 / 7%), 0 32px 64px rgb(0 0 0 / 7%);
   min-height: 100vh;
 }
 

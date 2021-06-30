@@ -39,4 +39,9 @@
       opacity: 1;
     }
   }
-  
+
+  .input-box{
+    outline: 0;
+    border: none;
+    background-color: transparent;
+  }

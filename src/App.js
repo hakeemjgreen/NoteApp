@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import Firebase from "firebase";
 
 const loadedNotes = {};
+let newList;
 
 // TODO: Replace the following with your app's Firebase project configuration
 // For Firebase JavaScript SDK v7.20.0 and later, `measurementId` is an optional field
@@ -35,10 +36,10 @@ const databaseName = Firebase.database().ref('/notes');
 const App = () => {
   let [currentNote, setCurrentNote] = useState({})
   let [noteState, setNoteState] = useState({})
+  let [noteListState, setNoteList] = useState({})
   let [noteData, setNoteData] = useState({});
 
   const writeUserData = (typedContent) => {
-    console.log("is ffd", noteData)
 
     //If note exists update it
     if(noteState.id === undefined){
@@ -55,6 +56,8 @@ const App = () => {
         //Add key to the state
       });
     }
+
+    //If not create it
     else{
       const userNoteDB = Firebase.database().ref(`/notes/${noteState.id}`);
 
@@ -77,30 +80,30 @@ const App = () => {
   useEffect(()=>{
 
       var noteRef = Firebase.database().ref('notes/');
-      let newList;
-      noteRef.on('value', (snapshot) => {
+
+      //Only runs every note creation. DOES NOT UPDATE STATE AFTER KEY PRESS
+      noteRef.orderByChild("timestamp").on('value', (snapshot) => {
         const data = snapshot.val();
-        for(const key in snapshot.val()){
+        for(const key in data){
           let content = data[key].content
-          //If key is different add to note state
-          
-            console.log("Differentttt")
-            
+                      
             let notess={
-              [key] : {content}
+              [key] : {
+                content,
+                "timestamp": new Date().getTime()
+              }
             }
             newList = {
-              ...notess, 
-              ...newList
+              ...newList,
+              ...notess
             }
             console.log("NOTESSS", newList)
           
         }
         setNoteData(newList)
+        // console.log("GET EFFECT", newList)
       });
-      let func = () =>{
-        console.log("LISTTT", newList)
-      }
+
       
       // firebase.database().ref('users/' + userId).set({
       //   username: name,
@@ -108,7 +111,7 @@ const App = () => {
       //   profile_picture : imageUrl
       // });
 
-    func();
+    // func();
     // console.log("GET NOTES")
 
   },[])
@@ -128,12 +131,13 @@ const App = () => {
   return (
     <div className="App">
       <header className="App-header">
-        REDdd
+        <h3 className="ma0 pa0">NOTEMAN</h3>
       </header>
       <div className="fl w-100 center">
-        <SideBar NoteContent={currentNote} noteList={noteData} setCurrentNote={setCurrentNote} />
-        <div id="note-section" className="fl center w-80 pa2">
-          <input className="w-100" placeholder="Please start typing to save Note..." onChange={event=>{
+        <SideBar NoteContent={currentNote} noteList={noteData ? noteData : {}} setCurrentNote={setCurrentNote} />
+        <div id="note-section" className="fl center w-80 pv2 ph4">
+          <input className="w-100 f2 input-box" type="text" placeholder="Title" />
+          <input className="w-100 input-box" placeholder="Please start typing to save Note..." onChange={event=>{
             let val = event.target.value
             setCurrentNote({
               // id:0,
